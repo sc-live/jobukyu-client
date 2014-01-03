@@ -1,0 +1,25 @@
+{
+  "name": "jobukyu-client",
+  "version": "0.0.0",
+  "description": "Client for the jobukyu job queue",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:sc-live/jobukyu-client.git"
+  },
+  "keywords": [
+    "queue",
+    "client",
+    "jobukyu",
+    "api"
+  ],
+  "author": "Ben Evans <ben@bensbit.co.uk> (http://bensbit.co.uk)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sc-live/jobukyu-client/issues"
+  },
+  "homepage": "https://github.com/sc-live/jobukyu-client"
+}
