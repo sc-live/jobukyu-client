@@ -1,6 +1,6 @@
 {
   "name": "jobukyu-client",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Client for the jobukyu job queue",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:sc-live/jobukyu-client.git"
+    "url": "git@github.com:webcast-io/jobukyu-client.git"
   },
   "keywords": [
     "queue",
@@ -19,9 +19,9 @@
   "author": "Ben Evans <ben@bensbit.co.uk> (http://bensbit.co.uk)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sc-live/jobukyu-client/issues"
+    "url": "https://github.com/webcast-io/jobukyu-client/issues"
   },
-  "homepage": "https://github.com/sc-live/jobukyu-client",
+  "homepage": "https://github.com/webcast-io/jobukyu-client",
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-jshint": "~0.8.0"
