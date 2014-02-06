@@ -1,3 +1,4 @@
+'use strict';
 
 var assert        = require('assert');
 var jobukyuClient = require('../');
@@ -18,7 +19,6 @@ describe('jobukyu-client', function() {
   describe('Client', function() {
 
     describe('.createJob()', function() {
-      var client = jobukyuClient();
       it('should create a job in the queue');
     });
 
