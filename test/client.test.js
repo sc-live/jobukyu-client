@@ -2,6 +2,7 @@
 
 var queueApi = require('../');
 var assert   = require('assert');
+var async    = require('async');
 
 describe('jobukyu-client', function() {
 
@@ -75,22 +76,69 @@ describe('jobukyu-client', function() {
 
   describe('waitForJob()', function() {
 
-    var takeJobData = { type: 'jobukyu_test_waitforjob_take' };
-
-    before(function(done) {
-      queueApi.createJob(takeJobData, done);
+    beforeEach(function() {
+      queueApi.free();
     });
 
-    it('should call the worker function when able to take a job', function() {
+    this.timeout(5 * 1000);
+
+    var takeJobData = { type: 'jobukyu_test_waitforjob_take' };
+    var completeJobData = {
+      type: 'jobukyu_test_waitforjob_complete',
+      metadata: {
+        dataToSendWhenFailed: { event:'error', progress: { data: null }},
+        dataToSendWhenProcessing: { event: 'processing', progress: { data: null }}
+      },
+      webhooks            : {
+        processing        : [{method: 'PUT', url: 'http://logserver/api/log/process_pdf/processing', data: 'dataToSendWhenProcessing'}],
+        completed         : [{method: 'PUT', url: 'http://logserver/api/log/completed',  data: 'dataToSend'}],
+        failed            : [{method: 'PUT', url: 'http://logserver/api/log/progress', data: { event: 'failed' }}]
+      }
+    };
+
+    var errorJobData = {
+      type: 'jobukyu_test_waitforjob_error',
+      metadata: {
+        dataToSendWhenFailed: { event:'error', progress: { data: null }},
+        dataToSendWhenProcessing: { event: 'processing', progress: { data: null }}
+      },
+      webhooks            : {
+        processing        : [{method: 'PUT', url: 'http://logserver/api/log/process_pdf/processing', data: 'dataToSendWhenProcessing'}],
+        completed         : [{method: 'PUT', url: 'http://logserver/api/log/completed',  data: 'dataToSend'}],
+        failed            : [{method: 'PUT', url: 'http://logserver/api/log/progress', data: { event: 'failed' }}]
+      }
+    };
+
+    before(function(done) {
+      async.parallel([function(done) {
+        queueApi.createJob(takeJobData, done);
+      }, function(done) {
+        queueApi.createJob(completeJobData, done);
+      }, function(done) {
+        queueApi.createJob(errorJobData, done);
+      }], done);
+    });
+
+    it('should call the worker function when able to take a job', function(done) {
       queueApi.waitForJob(takeJobData.type, function(job) {
-        for (var i = 0; i < Object.keys(takeJobData).length; i++) {
-          assert.deepEqual(job[Object.keys(takeJobData)[i]], takeJobData[Object.keys(takeJobData)[i]]);
-        }
+        assert.equal(job.type, takeJobData.type);
+        done();
       });
     });
 
-    it('should report complete if callback called without err');
-    it('should report an error if an instance of err is given to callback');
+    it('should report complete if callback called without err', function(done) {
+      queueApi.waitForJob(completeJobData.type, function(job, jobDone) {
+        assert.equal(job.type, completeJobData.type);
+        jobDone(done);
+      });
+    });
+
+    it('should report an error if an instance of err is given to callback', function(done) {
+      queueApi.waitForJob(errorJobData.type, function(job, jobDone) {
+        assert.equal(job.type, errorJobData.type);
+        jobDone(new Error('Test Error', done));
+      });
+    });
 
   });
 
