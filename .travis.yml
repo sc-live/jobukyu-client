@@ -15,3 +15,5 @@ before_script:
   - npm install -g grunt-cli
 script:
   - grunt travis
+after_script:
+  - if [ "$TEST_CMD" = 'mocha' ]; then npm run coveralls; fi
