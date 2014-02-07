@@ -70,6 +70,28 @@ describe('jobukyu-client', function() {
         done();
       });
     });
+
+  });
+
+  describe('waitForJob()', function() {
+
+    var takeJobData = { type: 'jobukyu_test_waitforjob_take' };
+
+    before(function(done) {
+      queueApi.createJob(takeJobData, done);
+    });
+
+    it('should call the worker function when able to take a job', function() {
+      queueApi.waitForJob(takeJobData.type, function(job) {
+        for (var i = 0; i < Object.keys(takeJobData).length; i++) {
+          assert.deepEqual(job[Object.keys(takeJobData)[i]], takeJobData[Object.keys(takeJobData)[i]]);
+        }
+      });
+    });
+
+    it('should report complete if callback called without err');
+    it('should report an error if an instance of err is given to callback');
+
   });
 
 
