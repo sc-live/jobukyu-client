@@ -2,8 +2,20 @@
 
 var queueApi = require('../');
 var assert   = require('assert');
+var async    = require('async');
+var http     = require('http');
+
+var dummyServerPort = process.env.PORT || 3001;
 
 describe('jobukyu-client', function() {
+
+  before(function(done) {
+    // Create Dummy Server
+    http.createServer(function(req, res) {
+      console.log('Dummy Server: ' + req.method + ' ' + req.url);
+      res.end();
+    }).listen(dummyServerPort, done);
+  });
 
   describe('[set|get]JobQueueUrl', function() {
 
@@ -70,6 +82,75 @@ describe('jobukyu-client', function() {
         done();
       });
     });
+
+  });
+
+  describe('waitForJob()', function() {
+
+    beforeEach(function() {
+      queueApi.free();
+    });
+
+    this.timeout(5 * 1000);
+
+    var takeJobData = { type: 'jobukyu_test_waitforjob_take' };
+    var completeJobData = {
+      type: 'jobukyu_test_waitforjob_complete',
+      metadata: {
+        dataToSendWhenFailed: { event:'error', progress: { data: null }},
+        dataToSendWhenProcessing: { event: 'processing', progress: { data: null }}
+      },
+      webhooks            : {
+        processing        : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/process_pdf/processing', data: 'dataToSendWhenProcessing'}],
+        completed         : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/completed',  data: 'dataToSend'}],
+        failed            : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/progress', data: { event: 'failed' }}]
+      }
+    };
+
+    var errorJobData = {
+      type: 'jobukyu_test_waitforjob_error',
+      metadata: {
+        dataToSendWhenFailed: { event:'error', progress: { data: null }},
+        dataToSendWhenProcessing: { event: 'processing', progress: { data: null }}
+      },
+      webhooks            : {
+        processing        : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/process_pdf/processing', data: 'dataToSendWhenProcessing'}],
+        completed         : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/completed',  data: 'dataToSend'}],
+        failed            : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/progress', data: { event: 'failed' }}]
+      }
+    };
+
+    before(function(done) {
+      async.parallel([function(done) {
+        queueApi.createJob(takeJobData, done);
+      }, function(done) {
+        queueApi.createJob(completeJobData, done);
+      }, function(done) {
+        queueApi.createJob(errorJobData, done);
+      }], done);
+    });
+
+    it('should call the worker function when able to take a job', function(done) {
+      queueApi.waitForJob(takeJobData.type, function(job) {
+        assert.equal(job.type, takeJobData.type);
+        done();
+      });
+    });
+
+    it('should report complete if callback called without err', function(done) {
+      queueApi.waitForJob(completeJobData.type, function(job, jobDone) {
+        assert.equal(job.type, completeJobData.type);
+        jobDone(done);
+      });
+    });
+
+    it('should report an error if an instance of err is given to callback', function(done) {
+      queueApi.waitForJob(errorJobData.type, function(job, jobDone) {
+        assert.equal(job.type, errorJobData.type);
+        jobDone(new Error('Test Error'), done);
+      });
+    });
+
   });
 
 
