@@ -3,8 +3,19 @@
 var queueApi = require('../');
 var assert   = require('assert');
 var async    = require('async');
+var http     = require('http');
+
+var dummyServerPort = process.env.PORT || 3001;
 
 describe('jobukyu-client', function() {
+
+  before(function(done) {
+    // Create Dummy Server
+    http.createServer(function(req, res) {
+      console.log('Dummy Server: ' + req.method + ' ' + req.url);
+      res.end();
+    }).listen(dummyServerPort, done);
+  });
 
   describe('[set|get]JobQueueUrl', function() {
 
@@ -90,9 +101,9 @@ describe('jobukyu-client', function() {
         dataToSendWhenProcessing: { event: 'processing', progress: { data: null }}
       },
       webhooks            : {
-        processing        : [{method: 'PUT', url: 'http://logserver/api/log/process_pdf/processing', data: 'dataToSendWhenProcessing'}],
-        completed         : [{method: 'PUT', url: 'http://logserver/api/log/completed',  data: 'dataToSend'}],
-        failed            : [{method: 'PUT', url: 'http://logserver/api/log/progress', data: { event: 'failed' }}]
+        processing        : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/process_pdf/processing', data: 'dataToSendWhenProcessing'}],
+        completed         : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/completed',  data: 'dataToSend'}],
+        failed            : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/progress', data: { event: 'failed' }}]
       }
     };
 
@@ -103,9 +114,9 @@ describe('jobukyu-client', function() {
         dataToSendWhenProcessing: { event: 'processing', progress: { data: null }}
       },
       webhooks            : {
-        processing        : [{method: 'PUT', url: 'http://logserver/api/log/process_pdf/processing', data: 'dataToSendWhenProcessing'}],
-        completed         : [{method: 'PUT', url: 'http://logserver/api/log/completed',  data: 'dataToSend'}],
-        failed            : [{method: 'PUT', url: 'http://logserver/api/log/progress', data: { event: 'failed' }}]
+        processing        : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/process_pdf/processing', data: 'dataToSendWhenProcessing'}],
+        completed         : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/completed',  data: 'dataToSend'}],
+        failed            : [{method: 'PUT', url: 'http://localhost:' + dummyServerPort + '/api/log/progress', data: { event: 'failed' }}]
       }
     };
 
