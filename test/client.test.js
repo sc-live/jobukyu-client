@@ -147,7 +147,7 @@ describe('jobukyu-client', function() {
     it('should report an error if an instance of err is given to callback', function(done) {
       queueApi.waitForJob(errorJobData.type, function(job, jobDone) {
         assert.equal(job.type, errorJobData.type);
-        jobDone(new Error('Test Error', done));
+        jobDone(new Error('Test Error'), done);
       });
     });
 
