@@ -2,7 +2,14 @@ language: node_js
 node_js:
   - '0.10'
   - '0.8'
+env:
+  matrix:
+    - TEST_CMD="mocha"
+    - TEST_CMD="lint"
 before_script:
+  - npm install git://github.com/webcast-io/jobukyu.git
+  - cp ./node_modules/jobukyu/config.example.js ./node_modules/jobukyu/config.js
+  - node ./node_modules/jobukyu/index.js &
   - npm install -g grunt-cli
 script:
-  - grunt lint
+  - grunt travis

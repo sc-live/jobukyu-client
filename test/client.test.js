@@ -2,17 +2,16 @@
 
 var queueApi = require('../');
 var assert   = require('assert');
-var request  = require('request');
 
 describe('jobukyu-client', function() {
 
   describe('[set|get]JobQueueUrl', function() {
 
-    var originalQueueUrl = queueApi.jobQueueUrl;
+    var originalQueueUrl = queueApi.getJobQueueUrl();
     var tempQueueUrl = 'http://jobqueuehost:3900';
 
-    afterEach(function() {
-      queueApi.jobQueueUrl = originalQueueUrl;
+    after(function() {
+      queueApi.setJobQueueUrl(originalQueueUrl);
     });
 
     it('should return callback if provided (should be depreciated)', function(done) {
@@ -45,14 +44,29 @@ describe('jobukyu-client', function() {
 
   describe('getJobFromQueue', function() {
 
+    var testJobData = {
+      name: 'Test Job for getJobFromQueue()',
+      type: 'jobukyu_test_getjobfromqueue',
+      metadata: {
+        nsa: 'leaks'
+      }
+    };
+
     beforeEach(function(done) {
-      // Create Job
+      queueApi.createJob(testJobData, done);
     });
 
-    it('should take a job from queue based on name', function(done) {
-      queueApi.getJobFromQueue('jobukyu_test_getjobfromqueue', function(err, job) {
-        assert.ifError(err);
+    afterEach(function() {
+      // TODO: Delete Job
+    });
+
+    it('should take a job from queue based on type', function(done) {
+      // ASK pj: shouldn't getJobFromQueue have the signature of (err, job)?
+      queueApi.getJobFromQueue(testJobData.type, function(job) {
         // assert job data
+        for (var i = 0; i < Object.keys(testJobData).length; i++) {
+          assert.deepEqual(job[Object.keys(testJobData)[i]], testJobData[Object.keys(testJobData)[i]]);
+        }
         done();
       });
     });
