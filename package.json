@@ -24,7 +24,8 @@
   "homepage": "https://github.com/webcast-io/jobukyu-client",
   "devDependencies": {
     "grunt": "~0.4.2",
-    "grunt-contrib-jshint": "~0.8.0"
+    "grunt-contrib-jshint": "~0.8.0",
+    "mocha": "~1.17.1"
   },
   "dependencies": {
     "request": "~2.31.0"
