@@ -1,6 +1,6 @@
 'use strict';
 
-var queueApi = require('../');
+var queueApi = require('../')();
 var assert   = require('assert');
 var async    = require('async');
 var http     = require('http');
