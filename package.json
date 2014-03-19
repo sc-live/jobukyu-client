@@ -1,6 +1,6 @@
 {
   "name": "jobukyu-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Client for the jobukyu job queue",
   "main": "index.js",
   "scripts": {
